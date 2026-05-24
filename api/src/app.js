@@ -1,0 +1,92 @@
+"use strict";
+
+require("dotenv").config();
+
+const express = require("express");
+const cors = require("cors");
+const helmet = require("helmet");
+const morgan = require("morgan");
+const path = require("path");
+const rateLimit = require("express-rate-limit");
+
+const { testConnection } = require("./config/db");
+const { error } = require("./utils/response");
+
+// ─── Routes ──────────────────────────────────────────────────────────────────
+const authRoutes = require("./routes/auth.routes");
+const reportRoutes = require("./routes/reports.routes");
+const withdrawalRoutes = require("./routes/withdrawals.routes");
+const categoryRoutes = require("./routes/categories.routes");
+const userRoutes = require("./routes/users.routes");
+const dashboardRoutes = require("./routes/dashboard.routes");
+const notificationRoutes = require("./routes/notifications.routes");
+
+const app = express();
+const PORT = parseInt(process.env.PORT || "4000", 10);
+
+// ─── Security ─────────────────────────────────────────────────────────────────
+app.use(helmet());
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN || "*",
+    credentials: true,
+  }),
+);
+
+// ─── Rate limiting ────────────────────────────────────────────────────────────
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 min
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Too many requests, please try again later.",
+  },
+});
+app.use(limiter);
+
+// ─── Body / Static ────────────────────────────────────────────────────────────
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true }));
+app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
+
+// Serve uploaded files publicly
+app.use(
+  "/uploads",
+  express.static(path.resolve(process.env.UPLOAD_DIR || "src/uploads")),
+);
+
+// ─── API Routes ───────────────────────────────────────────────────────────────
+app.use("/api/auth", authRoutes);
+app.use("/api/reports", reportRoutes);
+app.use("/api/withdrawals", withdrawalRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/notifications", require("./routes/notifications.routes"));
+
+// ─── Health check ─────────────────────────────────────────────────────────────
+app.get("/health", (_req, res) =>
+  res.json({ status: "ok", service: "pasifik-api" }),
+);
+
+// ─── 404 ──────────────────────────────────────────────────────────────────────
+app.use((_req, res) => error(res, "Route not found", 404));
+
+// ─── Global error handler ─────────────────────────────────────────────────────
+// eslint-disable-next-line no-unused-vars
+app.use((err, _req, res, _next) => {
+  console.error("[Unhandled]", err);
+  error(res, err.message || "Internal Server Error", err.status || 500);
+});
+
+// ─── Boot ─────────────────────────────────────────────────────────────────────
+(async () => {
+  await testConnection();
+  app.listen(PORT, () => {
+    console.log(`[API] Pasifik running → http://localhost:${PORT}`);
+  });
+})();
+
+module.exports = app;
