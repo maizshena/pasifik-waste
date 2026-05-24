@@ -1,0 +1,54 @@
+{
+  "nav": {
+    "dashboard":   "Dasbor",
+    "reports":     "Laporan",
+    "withdrawals": "Penarikan",
+    "categories":  "Kategori",
+    "users":       "Pengguna"
+  },
+  "common": {
+    "approve":     "Setujui",
+    "reject":      "Tolak",
+    "save":        "Simpan",
+    "cancel":      "Batal",
+    "search":      "Cari…",
+    "loading":     "Memuat…",
+    "noData":      "Data tidak ditemukan",
+    "logout":      "Keluar",
+    "status":      "Status",
+    "actions":     "Aksi",
+    "confirm":     "Konfirmasi",
+    "filter":      "Filter"
+  },
+  "status": {
+    "pending":  "Menunggu",
+    "approved": "Disetujui",
+    "rejected": "Ditolak",
+    "success":  "Berhasil"
+  },
+  "reports": {
+    "title":          "Laporan Sampah",
+    "submit":         "Kirim Laporan",
+    "actualWeight":   "Berat Aktual (kg)",
+    "estWeight":      "Est. Berat",
+    "grossPoints":    "Poin Kotor",
+    "handlingFee":    "Biaya Penanganan",
+    "netPoints":      "Poin Bersih",
+    "validate":       "Validasi Laporan",
+    "rejectionReason":"Alasan Penolakan"
+  },
+  "withdrawals": {
+    "title":         "Penarikan",
+    "amount":        "Jumlah",
+    "bankName":      "Bank",
+    "accountHolder": "Pemilik Rekening",
+    "transferRef":   "Ref Transfer",
+    "process":       "Proses Penarikan"
+  },
+  "dashboard": {
+    "totalReports":      "Total Laporan",
+    "pendingReports":    "Laporan Menunggu",
+    "totalWithdrawals":  "Total Penarikan",
+    "activeUsers":       "Pengguna Aktif"
+  }
+}

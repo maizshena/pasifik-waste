@@ -1,0 +1,54 @@
+{
+  "nav": {
+    "dashboard":   "Dashboard",
+    "reports":     "Reports",
+    "withdrawals": "Withdrawals",
+    "categories":  "Categories",
+    "users":       "Users"
+  },
+  "common": {
+    "approve":     "Approve",
+    "reject":      "Reject",
+    "save":        "Save",
+    "cancel":      "Cancel",
+    "search":      "Search…",
+    "loading":     "Loading…",
+    "noData":      "No data found",
+    "logout":      "Logout",
+    "status":      "Status",
+    "actions":     "Actions",
+    "confirm":     "Confirm",
+    "filter":      "Filter"
+  },
+  "status": {
+    "pending":  "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "success":  "Success"
+  },
+  "reports": {
+    "title":          "Waste Reports",
+    "submit":         "Submit Report",
+    "actualWeight":   "Actual Weight (kg)",
+    "estWeight":      "Est. Weight",
+    "grossPoints":    "Gross Points",
+    "handlingFee":    "Handling Fee",
+    "netPoints":      "Net Points",
+    "validate":       "Validate Report",
+    "rejectionReason":"Rejection Reason"
+  },
+  "withdrawals": {
+    "title":         "Withdrawals",
+    "amount":        "Amount",
+    "bankName":      "Bank",
+    "accountHolder": "Account Holder",
+    "transferRef":   "Transfer Ref",
+    "process":       "Process Withdrawal"
+  },
+  "dashboard": {
+    "totalReports":      "Total Reports",
+    "pendingReports":    "Pending Reports",
+    "totalWithdrawals":  "Total Withdrawals",
+    "activeUsers":       "Active Users"
+  }
+}
