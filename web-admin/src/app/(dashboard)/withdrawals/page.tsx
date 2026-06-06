@@ -16,6 +16,7 @@ import {
   Building2, CreditCard, User, Calendar,
   Hash, CheckCircle2, XCircle, Clock,
   AlertTriangle, ArrowUpRight,
+  Wallet,
 } from 'lucide-react';
 
 const STATUS_OPTS = ['', 'pending', 'success', 'rejected'] as const;
@@ -118,11 +119,11 @@ export default function WithdrawalsPage() {
       ),
     },
     {
-      key: 'bank',
-      header: 'Bank',
+      key: 'e_wallet',
+      header: 'E-Wallet',
       render: (r) => (
         <div>
-          <p className="text-ink">{r.bank_name}</p>
+          <p className="text-ink">{r.e_wallet}</p>
           <p className="text-xs text-ink-muted font-mono">{r.account_number}</p>
         </div>
       ),
@@ -252,8 +253,8 @@ export default function WithdrawalsPage() {
               />
               <DetailField
                 icon={Building2}
-                label="Bank Name"
-                value={selected.bank_name}
+                label="E-Wallet"
+                value={selected.e_wallet}
               />
               <DetailField
                 icon={CreditCard}
@@ -299,9 +300,8 @@ export default function WithdrawalsPage() {
               )}
             </div>
 
-            {/* Actions — only for pending */}
             {selected.status === 'pending' && (
-              <div className="flex gap-2 justify-end pt-1 border-t border-surface-border">
+              <div className="flex gap-2 justify-end pt-4 border-t border-surface-border">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -316,7 +316,7 @@ export default function WithdrawalsPage() {
                   disabled={process.isPending}
                   onClick={() => setProcessModal({ action: 'reject' })}
                 >
-                  <XCircle size={13} /> Reject
+                  <XCircle size={14} /> Reject
                 </Button>
                 <Button
                   variant="primary"
@@ -324,7 +324,7 @@ export default function WithdrawalsPage() {
                   disabled={process.isPending}
                   onClick={() => setProcessModal({ action: 'confirm' })}
                 >
-                  <CheckCircle2 size={13} /> Confirm Transfer
+                  <CheckCircle2 size={13} /> Confirm
                 </Button>
               </div>
             )}
@@ -332,7 +332,6 @@ export default function WithdrawalsPage() {
         )}
       </Modal>
 
-      {/* ── Confirm Transfer Modal ────────────────────────────────────────── */}
       <Modal
         open={processModal?.action === 'confirm'}
         onClose={() => { if (!process.isPending) setProcessModal(null); }}
@@ -347,9 +346,9 @@ export default function WithdrawalsPage() {
               value={selected?.account_holder}
             />
             <DetailField
-              icon={Building2}
-              label="Bank"
-              value={`${selected?.bank_name} — ${selected?.account_number}`}
+              icon={Wallet}
+              label="E-Wallet"
+              value={`${selected?.e_wallet} — ${selected?.account_number}`}
               mono
             />
             <DetailField
@@ -362,7 +361,7 @@ export default function WithdrawalsPage() {
           </div>
           <p className="text-xs text-ink-muted">
             A mock transfer reference will be generated automatically.
-            Make sure the manual bank transfer has been completed before confirming.
+            Make sure the manual e-wallet transfer has been completed before confirming.
           </p>
           <div className="flex gap-2 justify-end">
             <Button

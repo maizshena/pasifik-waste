@@ -1,4 +1,3 @@
-// src/app/(dashboard)/reports/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -28,88 +27,73 @@ export default function ReportsPage() {
   const rows: Report[] = data?.data ?? [];
   const meta = data?.meta;
 
-  const columns: Column<Report>[] = [
-    {
-      key: "id",
-      header: "#",
-      render: (r) => (
-        <span className="font-mono text-xs text-ink-faint">#{r.id}</span>
-      ),
-      className: "w-14",
-    },
-    {
-      key: "warga",
-      header: "Warga",
-      render: (r) => (
-        <UserPopover
-          name={r.warga_name}
-          email=""
-          phone={r.warga_phone ?? ""}
-          role="warga"
-          activity={[
-            {
-              date: r.created_at,
-              action: "Submitted report",
-              status: r.status,
-            },
-          ]}
-        >
-          <span className="text-ink hover:text-brand-300 transition-colors font-medium cursor-pointer">
-            {r.warga_name}
-          </span>
-        </UserPopover>
-      ),
-    },
-    {
-      key: "category",
-      header: "Category",
-      render: (r) => <span className="text-ink-muted">{r.category_name}</span>,
-    },
-    {
-      key: "weight",
-      header: "Est. Weight",
-      render: (r) => (
-        <span className="font-mono text-xs">{r.estimated_weight} kg</span>
-      ),
-    },
-    {
-      key: "actual",
-      header: "Actual",
-      render: (r) => (
-        <span className="font-mono text-xs text-brand-300">
-          {r.actual_weight != null ? `${r.actual_weight} kg` : "—"}
+const columns: Column<Report>[] = [
+  {
+    key: 'id',
+    header: '#',
+    render: (r) => <span className="font-mono text-xs text-ink-faint">#{r.id}</span>,
+    className: 'w-14',
+  },
+  {
+    key: 'warga',
+    header: 'Warga',
+    render: (r) => (
+      <UserPopover
+        name={r.warga_name}
+        email=""
+        phone={r.warga_phone ?? ''}
+        role="warga"
+        activity={[{ date: r.created_at, action: 'Submitted report', status: r.status }]}
+      >
+        <span className="text-ink hover:text-brand-300 transition-colors font-medium cursor-pointer">
+          {r.warga_name}
         </span>
-      ),
-    },
-    {
-      key: "net_points",
-      header: "Net Pts",
-      render: (r) => (
-        <span className="font-mono text-xs text-brand-400">
-          {r.net_points != null ? r.net_points.toLocaleString("id-ID") : "—"}
-        </span>
-      ),
-    },
-    {
-      key: "status",
-      header: "Status",
-      render: (r) => <Badge status={r.status} />,
-    },
-    {
-      key: "date",
-      header: "Submitted",
-      render: (r) => (
-        <span className="text-xs text-ink-muted">
-          {new Date(r.created_at).toLocaleDateString("id-ID")}
-        </span>
-      ),
-    },
-    {
-      key: "status",
-      header: t("common.status"),
-      render: (r) => <Badge status={r.status} />,
-    },
-  ];
+      </UserPopover>
+    ),
+  },
+  {
+    key: 'category',         // ← was duplicated somewhere
+    header: 'Category',
+    render: (r) => <span className="text-ink-muted">{r.category_name}</span>,
+  },
+  {
+    key: 'est_weight',       // ← unique key
+    header: 'Est. Weight',
+    render: (r) => <span className="font-mono text-xs">{r.estimated_weight} kg</span>,
+  },
+  {
+    key: 'actual_weight',    // ← unique key
+    header: 'Actual',
+    render: (r) => (
+      <span className="font-mono text-xs text-brand-300">
+        {r.actual_weight != null ? `${r.actual_weight} kg` : '—'}
+      </span>
+    ),
+  },
+  {
+    key: 'net_points',
+    header: 'Net Pts',
+    render: (r) => (
+      <span className="font-mono text-xs text-brand-400">
+        {r.net_points != null ? r.net_points.toLocaleString('id-ID') : '—'}
+      </span>
+    ),
+  },
+  {
+    key: 'report_status',    // ← was 'status', now unique
+    header: 'Status',
+    render: (r) => <Badge status={r.status} />,
+  },
+  {
+    key: 'submitted_date',   // ← was 'date', now unique
+    header: 'Submitted',
+    render: (r) => (
+      <span className="text-xs text-ink-muted">
+        {new Date(r.created_at).toLocaleDateString('id-ID')}
+      </span>
+    ),
+  },
+];
 
   return (
     <div className="animate-fade-in">

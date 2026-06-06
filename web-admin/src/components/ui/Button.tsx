@@ -7,7 +7,7 @@ type Variant = 'primary' | 'ghost' | 'danger' | 'outline';
 type Size    = 'sm' | 'md' | 'lg';
 
 const variantMap: Record<Variant, string> = {
-  primary: 'bg-brand text-white hover:bg-brand-500 shadow-glow/30',
+  primary: 'bg-brand text-white hover:bg-brand-500',
   ghost:   'bg-transparent text-ink-muted hover:bg-surface-overlay hover:text-ink',
   danger:  'bg-red-600/20 text-red-400 ring-1 ring-red-800 hover:bg-red-600/30',
   outline: 'bg-transparent ring-1 ring-surface-border text-ink hover:bg-surface-overlay',

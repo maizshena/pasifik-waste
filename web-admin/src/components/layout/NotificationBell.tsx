@@ -1,26 +1,30 @@
-// src/components/layout/NotificationBell.tsx
-'use client';
+"use client";
 
-import { useState, useRef, useEffect } from 'react';
-import { useRouter }   from 'next/navigation';
-import { Bell, Check, CheckCheck } from 'lucide-react';
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Bell, Check, CheckCheck } from "lucide-react";
 import {
-  useNotifications, useMarkRead, useMarkAllRead, Notification,
-} from '@/hooks/useNotifications';
+  useNotifications,
+  useMarkRead,
+  useMarkAllRead,
+  Notification,
+} from "@/hooks/useNotifications";
+import { NotifIcon } from "@/components/ui/NotifIcon";
 
-const TYPE_ICON: Record<string, string> = {
-  new_report:           '🗂️',
-  report_validated:     '✅',
-  new_comment:          '💬',
-  new_withdrawal:       '💰',
-  withdrawal_processed: '🏦',
-  new_category:         '🏷️',
-};
+export type NotifType =
+  | "new_report"
+  | "report_validated"
+  | "new_comment"
+  | "new_withdrawal"
+  | "withdrawal_processed"
+  | "new_category"
+  | string;
 
 function NotifItem({
-  notif, onRead,
+  notif,
+  onRead,
 }: {
-  notif:  Notification;
+  notif: Notification;
   onRead: (id: number, link: string | null) => void;
 }) {
   return (
@@ -29,18 +33,19 @@ function NotifItem({
       className={`
         w-full text-left px-4 py-3 border-b border-surface-border/50
         hover:bg-surface-raised transition-colors
-        ${!notif.is_read ? 'bg-brand/5' : ''}
+        ${!notif.is_read ? "bg-brand/5" : ""}
       `}
     >
       <div className="flex items-start gap-2.5">
-        <span className="text-base flex-shrink-0 mt-0.5">
-          {TYPE_ICON[notif.type] ?? '🔔'}
-        </span>
+        <NotifIcon type={notif.type} size={14} />
+
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <p className={`text-xs font-medium truncate ${
-              !notif.is_read ? 'text-ink' : 'text-ink-muted'
-            }`}>
+            <p
+              className={`text-xs font-medium truncate ${
+                !notif.is_read ? "text-ink" : "text-ink-muted"
+              }`}
+            >
               {notif.title}
             </p>
             {!notif.is_read && (
@@ -51,9 +56,11 @@ function NotifItem({
             {notif.body}
           </p>
           <p className="text-[10px] text-ink-faint mt-1">
-            {new Date(notif.created_at).toLocaleString('id-ID', {
-              day: 'numeric', month: 'short',
-              hour: '2-digit', minute: '2-digit',
+            {new Date(notif.created_at).toLocaleString("id-ID", {
+              day: "numeric",
+              month: "short",
+              hour: "2-digit",
+              minute: "2-digit",
             })}
           </p>
         </div>
@@ -63,16 +70,16 @@ function NotifItem({
 }
 
 export function NotificationBell() {
-  const [open,  setOpen]  = useState(false);
-  const ref               = useRef<HTMLDivElement>(null);
-  const router            = useRouter();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
-  const { data }    = useNotifications();
-  const markRead    = useMarkRead();
+  const { data } = useNotifications();
+  const markRead = useMarkRead();
   const markAllRead = useMarkAllRead();
 
   const notifications = data?.notifications ?? [];
-  const unread        = data?.unread ?? 0;
+  const unread = data?.unread ?? 0;
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -80,8 +87,8 @@ export function NotificationBell() {
         setOpen(false);
       }
     };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
   function handleRead(id: number, link: string | null) {
@@ -102,7 +109,7 @@ export function NotificationBell() {
         <Bell size={16} />
         {unread > 0 && (
           <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-brand text-white text-[9px] font-bold flex items-center justify-center">
-            {unread > 99 ? '99+' : unread}
+            {unread > 99 ? "99+" : unread}
           </span>
         )}
       </button>
@@ -114,9 +121,13 @@ export function NotificationBell() {
           <div className="flex items-center justify-between px-4 py-3 border-b border-surface-border">
             <div className="flex items-center gap-2">
               <Bell size={13} className="text-brand" />
-              <span className="text-sm font-medium text-ink">Notifications</span>
+              <span className="text-sm font-medium text-ink">
+                Notifications
+              </span>
               {unread > 0 && (
-                <span className="text-xs text-brand-300">({unread} unread)</span>
+                <span className="text-xs text-brand-300">
+                  ({unread} unread)
+                </span>
               )}
             </div>
             {unread > 0 && (

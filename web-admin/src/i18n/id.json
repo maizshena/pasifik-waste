@@ -40,7 +40,7 @@
   "withdrawals": {
     "title":         "Penarikan",
     "amount":        "Jumlah",
-    "bankName":      "Bank",
+    "eWallet":      "E-Wallet",
     "accountHolder": "Pemilik Rekening",
     "transferRef":   "Ref Transfer",
     "process":       "Proses Penarikan"

@@ -1,6 +1,9 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { LogOut } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
+import { AuthUser, useAuthStore } from "@/store/auth.store";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   User,
@@ -18,9 +21,8 @@ import { Modal } from "@/components/ui/Modal";
 import { Toast } from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";
 import api from "@/lib/axios";
-import { AuthUser, useAuthStore } from "@/store/auth.store";
 
-// ── TDD assertions ────────────────────────────────────────────────────────────
+
 if (process.env.NODE_ENV === "development") {
   const assert = (c: boolean, m: string) =>
     c ? console.log(`[TDD PASS] ${m}`) : console.error(`[TDD FAIL] ${m}`);
@@ -41,7 +43,6 @@ interface ProfileData {
   created_at: string;
 }
 
-// ── Tiny canvas crop helper ───────────────────────────────────────────────────
 function cropImageFromCanvas(
   canvas: HTMLCanvasElement,
   crop: { x: number; y: number; size: number },
@@ -77,8 +78,7 @@ export default function ProfilePage() {
   });
   const [profileError, setProfileError] = useState("");
   const [passwordError, setPasswordError] = useState("");
-
-  // ── Crop modal state ──────────────────────────────────────────────────────
+  
   const [cropOpen, setCropOpen] = useState(false);
   const [rawImage, setRawImage] = useState<string | null>(null);
   const [cropOffset, setCropOffset] = useState({ x: 0, y: 0 });
@@ -91,8 +91,10 @@ export default function ProfilePage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+  const { logout } = useAuthStore();
 
-  // ── Fetch profile ─────────────────────────────────────────────────────────
+  // fetch profile
   const { data: profile, isLoading } = useQuery({
     queryKey: ["profile"],
     queryFn: async () =>
@@ -539,6 +541,18 @@ export default function ProfilePage() {
               ))}
             </div>
           </div>
+            <div className="bg-surface-raised border border-surface-border rounded-2xl p-6">
+              <h3 className="font-display text-base text-ink mb-4">Sign Out</h3>
+              <button
+                onClick={() => {
+                  logout();
+                  router.replace("/login");
+                }}
+                className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-sm text-red-400 border border-red-900/20 hover:bg-red-900/10 transition-colors"
+              >
+                <LogOut size={14} /> Sign out of this device
+              </button>
+            </div>
         </div>
       </div>
 

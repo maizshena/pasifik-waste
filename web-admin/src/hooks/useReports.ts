@@ -1,4 +1,3 @@
-// src/hooks/useReports.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../lib/axios';
 
@@ -19,7 +18,7 @@ export interface Report {
   notes:                 string | null;
   status:                'pending' | 'approved' | 'rejected';
   rejection_reason:      string | null;
-  validated_by:          number | null;
+  validated_by_name:          number | null;
   validated_at:          string | null;
   latitude:              number | null;
   longitude:             number | null;

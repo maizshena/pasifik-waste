@@ -8,7 +8,7 @@ export interface Withdrawal {
   full_name:        string;
   email:            string;
   amount:           number;
-  bank_name:        string;
+  e_wallet:        string;
   account_number:   string;
   account_holder:   string;
   status:           'pending' | 'success' | 'rejected';

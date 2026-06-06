@@ -40,7 +40,7 @@
   "withdrawals": {
     "title":         "Withdrawals",
     "amount":        "Amount",
-    "bankName":      "Bank",
+    "eWallet":      "E-Wallet",
     "accountHolder": "Account Holder",
     "transferRef":   "Transfer Ref",
     "process":       "Process Withdrawal"

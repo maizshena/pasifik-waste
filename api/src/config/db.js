@@ -1,4 +1,3 @@
-// src/config/db.js
 'use strict';
 
 const mysql = require('mysql2/promise');
@@ -16,8 +15,6 @@ const pool = mysql.createPool({
   timezone:           '+07:00',
   charset:            'utf8mb4',
   typeCast: function (field, next) {
-    // Only cast fields explicitly named is_active or is_* to boolean
-    // Avoids miscasting COUNT(*) and other numeric fields
     if (
       field.type === 'TINY' &&
       field.length === 1 &&

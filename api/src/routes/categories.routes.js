@@ -1,17 +1,20 @@
-'use strict';
+"use strict";
 
-const router = require('express').Router();
-const { pool }                    = require('../config/db');
-const { success, error }          = require('../utils/response');
-const { authenticate, authorize } = require('../middleware/auth');
+const router = require("express").Router();
+const { pool } = require("../config/db");
+const { success, error } = require("../utils/response");
+const { authenticate, authorize } = require("../middleware/auth");
 
-const SA = authorize('super_admin');
+const SA = authorize("super_admin");
 
-// get /api/categories
 router.get('/', async (_req, res) => {
   try {
     const [rows] = await pool.query(
-      'SELECT * FROM categories ORDER BY name ASC'
+      `SELECT id, name, slug, price_per_kg, unit, icon_url,
+              CAST(is_active AS UNSIGNED) AS is_active
+       FROM categories
+       WHERE is_active = 1
+       ORDER BY name ASC`
     );
     return success(res, rows);
   } catch (err) {
@@ -19,7 +22,7 @@ router.get('/', async (_req, res) => {
   }
 });
 
-// post /api/categories
+
 router.post('/', authenticate, SA, async (req, res) => {
   const { name, slug, price_per_kg, unit, icon_url } = req.body;
 
@@ -28,6 +31,7 @@ router.post('/', authenticate, SA, async (req, res) => {
   }
 
   try {
+    // Check duplicate slug
     const [existing] = await pool.query(
       'SELECT id FROM categories WHERE slug = ?', [slug]
     );
@@ -42,25 +46,41 @@ router.post('/', authenticate, SA, async (req, res) => {
         name.trim(),
         slug.trim(),
         parseInt(price_per_kg, 10),
-        unit  || 'kg',
+        unit     || 'kg',
         icon_url || null,
       ]
     );
+
+    // Non-critical — wrap so it never crashes the response
+    try {
+      const { notify } = require('../utils/notify');
+      await notify({
+        recipients: 'admins',
+        type:       'new_category',
+        title:      'New Category Added',
+        body:       `Category "${name}" was added to the system.`,
+        link:       '/categories',
+      });
+    } catch (notifyErr) {
+      console.warn('[NOTIFY WARN]', notifyErr.message);
+    }
+
     return success(res, { id: result.insertId }, 'Category created', 201);
   } catch (err) {
+    console.error('[CATEGORY CREATE ERROR]', err.message);
     return error(res, 'Failed to create category', 500, err.message);
   }
 });
 
 // patch /api/categories/:id
-router.patch('/:id', authenticate, SA, async (req, res) => {
+router.patch("/:id", authenticate, SA, async (req, res) => {
   const { name, price_per_kg, unit, icon_url, is_active } = req.body;
 
   try {
-    const [cats] = await pool.query(
-      'SELECT * FROM categories WHERE id = ?', [req.params.id]
-    );
-    if (cats.length === 0) return error(res, 'Category not found', 404);
+    const [cats] = await pool.query("SELECT * FROM categories WHERE id = ?", [
+      req.params.id,
+    ]);
+    if (cats.length === 0) return error(res, "Category not found", 404);
 
     const cur = cats[0];
 
@@ -68,10 +88,13 @@ router.patch('/:id', authenticate, SA, async (req, res) => {
     let activeValue = cur.is_active ? 1 : 0; // default: keep current
     if (is_active !== undefined && is_active !== null) {
       // Handles: true, false, 1, 0, "true", "false", "1", "0"
-      activeValue = (is_active === true  ||
-                     is_active === 1     ||
-                     is_active === '1'   ||
-                     is_active === 'true') ? 1 : 0;
+      activeValue =
+        is_active === true ||
+        is_active === 1 ||
+        is_active === "1" ||
+        is_active === "true"
+          ? 1
+          : 0;
     }
 
     await pool.query(
@@ -83,45 +106,45 @@ router.patch('/:id', authenticate, SA, async (req, res) => {
            is_active    = ?
        WHERE id = ?`,
       [
-        name         ?? cur.name,
+        name ?? cur.name,
         price_per_kg != null ? parseInt(price_per_kg, 10) : cur.price_per_kg,
-        unit         ?? cur.unit,
-        icon_url     ?? cur.icon_url,
+        unit ?? cur.unit,
+        icon_url ?? cur.icon_url,
         activeValue,
         req.params.id,
-      ]
+      ],
     );
-    return success(res, null, 'Category updated');
+    return success(res, null, "Category updated");
   } catch (err) {
-    return error(res, 'Failed to update category', 500, err.message);
+    return error(res, "Failed to update category", 500, err.message);
   }
 });
 
-// delete /api/categories/:id 
-router.delete('/:id', authenticate, SA, async (req, res) => {
+// delete /api/categories/:id
+router.delete("/:id", authenticate, SA, async (req, res) => {
   try {
-    const [cats] = await pool.query(
-      'SELECT id FROM categories WHERE id = ?', [req.params.id]
-    );
-    if (cats.length === 0) return error(res, 'Category not found', 404);
+    const [cats] = await pool.query("SELECT id FROM categories WHERE id = ?", [
+      req.params.id,
+    ]);
+    if (cats.length === 0) return error(res, "Category not found", 404);
 
     // Check if category is used by any report
     const [reports] = await pool.query(
-      'SELECT id FROM public_reports WHERE category_id = ? LIMIT 1',
-      [req.params.id]
+      "SELECT id FROM public_reports WHERE category_id = ? LIMIT 1",
+      [req.params.id],
     );
     if (reports.length > 0) {
       return error(
         res,
-        'Cannot delete — this category has existing reports attached to it.',
-        409
+        "Cannot delete — this category has existing reports attached to it.",
+        409,
       );
     }
 
-    await pool.query('DELETE FROM categories WHERE id = ?', [req.params.id]);
-    return success(res, null, 'Category deleted');
+    await pool.query("DELETE FROM categories WHERE id = ?", [req.params.id]);
+    return success(res, null, "Category deleted");
   } catch (err) {
-    return error(res, 'Failed to delete category', 500, err.message);
+    return error(res, "Failed to delete category", 500, err.message);
   }
 });
 

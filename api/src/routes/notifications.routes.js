@@ -5,7 +5,6 @@ const { pool }             = require('../config/db');
 const { success, error }   = require('../utils/response');
 const { authenticate }     = require('../middleware/auth');
 
-// GET /api/notifications — current user's notifications
 router.get('/', authenticate, async (req, res) => {
   try {
     const [rows] = await pool.query(

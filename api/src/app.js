@@ -12,7 +12,6 @@ const rateLimit = require("express-rate-limit");
 const { testConnection } = require("./config/db");
 const { error } = require("./utils/response");
 
-// ─── Routes ──────────────────────────────────────────────────────────────────
 const authRoutes = require("./routes/auth.routes");
 const reportRoutes = require("./routes/reports.routes");
 const withdrawalRoutes = require("./routes/withdrawals.routes");
@@ -24,7 +23,6 @@ const notificationRoutes = require("./routes/notifications.routes");
 const app = express();
 const PORT = parseInt(process.env.PORT || "4000", 10);
 
-// ─── Security ─────────────────────────────────────────────────────────────────
 app.use(helmet());
 app.use(
   cors({
@@ -33,7 +31,6 @@ app.use(
   }),
 );
 
-// ─── Rate limiting ────────────────────────────────────────────────────────────
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 min
   max: 200,
@@ -46,18 +43,16 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// ─── Body / Static ────────────────────────────────────────────────────────────
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 
-// Serve uploaded files publicly
-app.use(
-  "/uploads",
-  express.static(path.resolve(process.env.UPLOAD_DIR || "src/uploads")),
-);
+app.use('/uploads', (req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  next();
+}, express.static(path.resolve(process.env.UPLOAD_DIR || 'src/uploads')));
 
-// ─── API Routes ───────────────────────────────────────────────────────────────
 app.use("/api/auth", authRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/withdrawals", withdrawalRoutes);
@@ -66,26 +61,34 @@ app.use("/api/users", userRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/notifications", require("./routes/notifications.routes"));
 
-// ─── Health check ─────────────────────────────────────────────────────────────
 app.get("/health", (_req, res) =>
   res.json({ status: "ok", service: "pasifik-api" }),
 );
 
-// ─── 404 ──────────────────────────────────────────────────────────────────────
 app.use((_req, res) => error(res, "Route not found", 404));
 
-// ─── Global error handler ─────────────────────────────────────────────────────
-// eslint-disable-next-line no-unused-vars
+// error handling middleware
 app.use((err, _req, res, _next) => {
   console.error("[Unhandled]", err);
   error(res, err.message || "Internal Server Error", err.status || 500);
 });
 
-// ─── Boot ─────────────────────────────────────────────────────────────────────
+app.post('/api/debug/withdrawal', async (req, res) => {
+  const { pool } = require('./config/db');
+  try {
+    const [[user]] = await pool.query(
+      'SELECT id, balance, locked_balance FROM users WHERE id = 3'
+    );
+    res.json({ ok: true, user });
+  } catch (e) {
+    res.json({ ok: false, error: e.message });
+  }
+});
+
 (async () => {
   await testConnection();
   app.listen(PORT, () => {
-    console.log(`[API] Pasifik running → http://localhost:${PORT}`);
+    console.log(`[API] Pasifik running on http://localhost:${PORT}`);
   });
 })();
 

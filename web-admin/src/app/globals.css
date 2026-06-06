@@ -13,31 +13,46 @@
   }
 
   body {
-    @apply bg-surface text-ink font-sans;
-    background-image:
-      radial-gradient(ellipse 80% 60% at 20% -10%, rgba(115,175,111,0.06) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 40% at 80% 110%, rgba(115,175,111,0.04) 0%, transparent 60%);
+    background-color: #171717;
+    color: #EDEDED;
+    font-family: 'DM Sans', system-ui, sans-serif;
     min-height: 100vh;
   }
 
   ::-webkit-scrollbar        { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track  { background: transparent; }
   ::-webkit-scrollbar-thumb  {
-    background-color: #252e42;
+    background-color: #313131;
     border-radius: 9999px;
+  }
+
+  input, select, textarea {
+    background-color: #1F1F1F !important;
+    color: #EDEDED !important;
+    border-color: #313131 !important;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #606060 !important;
+  }
+
+  option {
+    background-color: #1F1F1F;
+    color: #EDEDED;
   }
 }
 
 @layer components {
-  .table-row-hover {
-    @apply transition-colors duration-150 hover:bg-surface-overlay cursor-pointer;
-  }
-
   .skeleton {
     @apply rounded bg-surface-overlay;
-    background: linear-gradient(90deg, #1c2333 25%, #252e42 50%, #1c2333 75%);
+    background: linear-gradient(90deg, #1F1F1F 25%, #252525 50%, #1F1F1F 75%);
     background-size: 400px 100%;
-    animation: shimmer 1.6s infinite linear;
+    animation: shimmer 1.6s infinite;
+  }
+
+  .table-row-hover {
+    @apply transition-colors duration-150 hover:bg-surface-overlay cursor-pointer;
   }
 }
 
@@ -46,15 +61,12 @@
     0%   { background-position: -400px 0; }
     100% { background-position:  400px 0; }
   }
-
   @keyframes fadeIn {
     from { opacity: 0; }
     to   { opacity: 1; }
   }
-
   @keyframes slideUp {
     from { opacity: 0; transform: translateY(12px); }
     to   { opacity: 1; transform: translateY(0); }
   }
 }
-

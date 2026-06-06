@@ -1,83 +1,26 @@
-// src/routes/reports.routes.js
 'use strict';
 
 const router  = require('express').Router();
-const path    = require('path');
+const { pool }            = require('../config/db');
+const { success, error }  = require('../utils/response');
+const { notify }          = require('../utils/notify');
+const { authenticate, atLeast, authorize } = require('../middleware/auth');
+const upload  = require('../middleware/upload');
 const {
   create, list, myReports, validate,
 } = require('../controllers/reports.controller');
-const { authenticate, atLeast, authorize } = require('../middleware/auth');
-const { notify }  = require('../utils/notify');
-const { pool }    = require('../config/db');
-const { success, error } = require('../utils/response');
-const upload  = require('../middleware/upload');
 
 // POST — Warga submits report (up to 5 photos)
 router.post('/',
   authenticate, authorize('warga'),
   upload.array('photos', 5),
-  async (req, res) => {
-    const {
-      category_id, estimated_weight,
-      latitude, longitude, address_text, notes,
-    } = req.body;
-
-    if (!category_id || !estimated_weight) {
-      return error(res, 'category_id and estimated_weight are required', 400);
-    }
-
-    try {
-      const [cats] = await pool.query(
-        'SELECT id, price_per_kg FROM categories WHERE id = ? AND is_active = 1',
-        [category_id]
-      );
-      if (cats.length === 0) return error(res, 'Category not found or inactive', 404);
-
-      const snapshot  = cats[0].price_per_kg;
-      const photoUrls = req.files?.map((f) => `/uploads/${f.filename}`) ?? [];
-
-      const [result] = await pool.query(
-        `INSERT INTO public_reports
-           (user_id, category_id, price_per_kg_snapshot,
-            estimated_weight, latitude, longitude,
-            address_text, photo_url, photo_urls, notes)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [
-          req.user.id, category_id, snapshot,
-          parseFloat(estimated_weight),
-          latitude   || null,
-          longitude  || null,
-          address_text || null,
-          photoUrls[0] || null,          // backward compat
-          photoUrls.length > 0
-            ? JSON.stringify(photoUrls)
-            : null,
-          notes || null,
-        ]
-      );
-
-      // Notify all admins
-      const [warga] = await pool.query(
-        'SELECT full_name FROM users WHERE id = ?', [req.user.id]
-      );
-      await notify({
-        recipients: 'admins',
-        type:       'new_report',
-        title:      'New Waste Report',
-        body:       `${warga[0]?.full_name} submitted a new waste report.`,
-        link:       `/reports/${result.insertId}`,
-      });
-
-      return success(res, { id: result.insertId }, 'Report submitted', 201);
-    } catch (err) {
-      return error(res, 'Failed to create report', 500, err.message);
-    }
-  }
+  create
 );
 
-router.get('/my',   authenticate, authorize('warga'), myReports);
+// GET — Warga's own reports
+router.get('/my', authenticate, authorize('warga'), myReports);
 
-// GET single report
+// GET — Single report detail
 router.get('/:id', authenticate, async (req, res) => {
   try {
     const [rows] = await pool.query(
@@ -99,29 +42,38 @@ router.get('/:id', authenticate, async (req, res) => {
     if (rows.length === 0) return error(res, 'Report not found', 404);
 
     const report = rows[0];
+
     if (req.user.role === 'warga' && report.user_id !== req.user.id) {
       return error(res, 'Access denied', 403);
     }
 
-    // Parse photo_urls JSON
+    // Safely parse photo_urls
     if (report.photo_urls && typeof report.photo_urls === 'string') {
-      report.photo_urls = JSON.parse(report.photo_urls);
+      try {
+        report.photo_urls = JSON.parse(report.photo_urls);
+      } catch {
+        report.photo_urls = null;
+      }
     }
 
     return success(res, report);
   } catch (err) {
+    console.error('[REPORT DETAIL ERROR]', err.message);
     return error(res, 'Failed to fetch report', 500, err.message);
   }
 });
 
-router.get('/',               authenticate, atLeast('admin'),  list);
-router.patch('/:id/validate', authenticate, atLeast('admin'),  validate);
+// GET — All reports (Admin+)
+router.get('/', authenticate, atLeast('admin'), list);
+
+// PATCH — Validate report (Admin+)
+router.patch('/:id/validate', authenticate, atLeast('admin'), validate);
 
 // PATCH — Soft delete report (Admin+)
 router.patch('/:id/soft-delete', authenticate, atLeast('admin'), async (req, res) => {
   try {
     const [rows] = await pool.query(
-      'SELECT id, status FROM public_reports WHERE id = ? AND deleted_at IS NULL',
+      'SELECT id FROM public_reports WHERE id = ? AND deleted_at IS NULL',
       [req.params.id]
     );
     if (rows.length === 0) return error(res, 'Report not found', 404);
@@ -136,7 +88,7 @@ router.patch('/:id/soft-delete', authenticate, atLeast('admin'), async (req, res
   }
 });
 
-// GET comments
+// GET — Comments for a report
 router.get('/:id/comments', authenticate, async (req, res) => {
   try {
     const [rows] = await pool.query(
@@ -156,7 +108,7 @@ router.get('/:id/comments', authenticate, async (req, res) => {
   }
 });
 
-// POST comment
+// POST — Add comment
 router.post('/:id/comments', authenticate, async (req, res) => {
   const { body } = req.body;
   if (!body?.trim()) return error(res, 'Comment body is required', 400);
@@ -167,6 +119,8 @@ router.post('/:id/comments', authenticate, async (req, res) => {
       [req.params.id]
     );
     if (reports.length === 0) return error(res, 'Report not found', 404);
+
+    const report = reports[0];
 
     const [result] = await pool.query(
       'INSERT INTO comments (report_id, user_id, body) VALUES (?, ?, ?)',
@@ -184,17 +138,31 @@ router.post('/:id/comments', authenticate, async (req, res) => {
       [result.insertId]
     );
 
-    // Notify report owner (if commenter is admin notifying warga)
-    const [commenter] = await pool.query(
-      'SELECT full_name FROM users WHERE id = ?', [req.user.id]
+    const [commenterRows] = await pool.query(
+      'SELECT full_name, role FROM users WHERE id = ?',
+      [req.user.id]
     );
-    await notify({
-      recipients: [reports[0].user_id],
-      type:       'new_comment',
-      title:      'New Comment on Your Report',
-      body:       `${commenter[0]?.full_name} commented on your report.`,
-      link:       `/reports/${req.params.id}`,
-    });
+    const commenter = commenterRows[0];
+
+    if (commenter.role === 'warga') {
+      // Warga commented → notify all admins
+      await notify({
+        recipients: 'admins',
+        type:       'new_comment',
+        title:      'New Comment on Report',
+        body:       `${commenter.full_name} commented on report #${req.params.id}.`,
+        link:       `/history/${req.params.id}`,
+      });
+    } else if (report.user_id !== req.user.id) {
+      // Admin commented → notify the warga report owner only
+      await notify({
+        recipients: [report.user_id],
+        type:       'new_comment',
+        title:      'Admin Replied to Your Report',
+        body:       `${commenter.full_name} replied on report #${req.params.id}.`,
+        link:       `/history/${req.params.id}`,
+      });
+    }
 
     return success(res, newComment[0], 'Comment added', 201);
   } catch (err) {

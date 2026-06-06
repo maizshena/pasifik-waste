@@ -47,8 +47,7 @@ router.get('/', authenticate, SA, async (req, res) => {
   }
 });
 
-// PATCH /api/users/:id/edit — Super Admin
-// Cannot edit yourself
+// PATCH /api/users/:id/edit (Super Admin)
 router.patch('/:id/edit', authenticate, SA, async (req, res) => {
   const targetId = parseInt(req.params.id, 10);
 

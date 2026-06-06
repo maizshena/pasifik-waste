@@ -1,4 +1,3 @@
-// src/components/reports/PhotoGallery.tsx
 'use client';
 
 import { useState }      from 'react';

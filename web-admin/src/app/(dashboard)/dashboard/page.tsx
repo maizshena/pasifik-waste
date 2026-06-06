@@ -131,7 +131,6 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* ── Recent tables ─────────────────────────────────────────────── */}
         <div className="grid xl:grid-cols-2 gap-6">
           {/* Recent Reports */}
           <div className="bg-surface-raised border border-surface-border rounded-2xl overflow-hidden">
@@ -228,7 +227,7 @@ export default function DashboardPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-surface-border bg-surface-overlay">
-                  {["User", "Bank", "Amount", "Status"].map((h) => (
+                  {["User", "E-Wallet", "Amount", "Status"].map((h) => (
                     <th
                       key={h}
                       className="px-4 py-2.5 text-left text-xs text-ink-muted font-medium uppercase tracking-wider"
@@ -246,7 +245,7 @@ export default function DashboardPage() {
                   >
                     <td className="px-4 py-2.5 text-ink">{w.full_name}</td>
                     <td className="px-4 py-2.5 text-ink-muted">
-                      {w.bank_name}
+                      {w.e_wallet} - {w.account_number}
                     </td>
                     <td className="px-4 py-2.5 font-mono text-xs text-brand-300">
                       {w.amount.toLocaleString("id-ID")} pts
