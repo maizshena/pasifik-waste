@@ -30,7 +30,6 @@ export default function HistoryPage() {
         </h1>
       </div>
 
-      {/* Filter */}
       <div className="px-4 py-2 flex items-center gap-2 overflow-x-auto">
         <Filter size={13} className="text-ink-faint flex-shrink-0" />
         {STATUS_OPTS.map((s) => (
@@ -51,7 +50,6 @@ export default function HistoryPage() {
         ))}
       </div>
 
-      {/* List */}
       <div className="px-4 mt-2 space-y-3">
         {isLoading && Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="skeleton h-20 rounded-2xl" />

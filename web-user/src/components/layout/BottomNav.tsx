@@ -1,4 +1,3 @@
-// web-user/src/components/layout/BottomNav.tsx
 'use client';
 
 import { useState }      from 'react';
@@ -27,7 +26,6 @@ export function BottomNav() {
   const [pendingHref, setPendingHref] = useState<string | null>(null);
 
   function handleNav(href: string) {
-    // If on submit page with dirty form, intercept
     if (pathname === '/submit' && isDirty && href !== '/submit') {
       setPendingHref(href);
       return;

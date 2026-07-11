@@ -1,4 +1,3 @@
-// src/hooks/useToast.ts
 import { useState, useCallback } from 'react';
 
 interface ToastState { id: number; message: string; type: 'success' | 'error'; }

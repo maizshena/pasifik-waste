@@ -46,8 +46,10 @@
       "expo-secure-store"
     ],
     "scheme": "pasifik",
-    "experiments": {
-      "typedRoutes": true
+    "extra": {
+      "router": {
+        "origin": false
+      }
     }
   }
 }

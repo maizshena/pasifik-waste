@@ -2,12 +2,12 @@ import { useEffect, useRef }  from 'react';
 import { useQueryClient }     from '@tanstack/react-query';
 import { useNotifications }   from '@/hooks/useNotifications';
 
-console.log('[DEBUG] notifications data:', JSON.stringify(data));
-
 export function NotificationSync() {
   const qc       = useQueryClient();
   const { data } = useNotifications();
   const seenIds  = useRef<Set<number>>(new Set());
+
+  console.log('[DEBUG] notifications data:', JSON.stringify(data));
 
   useEffect(() => {
     if (!data || !data.notifications || !Array.isArray(data.notifications)) return;

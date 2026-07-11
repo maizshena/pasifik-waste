@@ -1,4 +1,3 @@
-// src/hooks/useHydration.ts
 'use client';
 import { useEffect, useState } from 'react';
 

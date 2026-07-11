@@ -1,178 +1,164 @@
-import { useNotifications } from "@/hooks/useNotifications";
-import { useAuthStore } from "@/store/auth.store";
-import { useLangStore } from "@/store/lang.store";
-import { Ionicons } from "@expo/vector-icons";
-import { Tabs, useRouter } from "expo-router";
-import { useEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { useEffect }        from 'react';
+import { Tabs }             from 'expo-router';
+import { useRouter }        from 'expo-router';
+import { Platform, View, Text, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons }         from '@expo/vector-icons';
+import { useAuthStore }     from '@/store/auth.store';
+import { useLangStore }     from '@/store/lang.store';
+import { useNotifications } from '@/hooks/useNotifications';
 
-const { user, accessToken, hydrated } = useAuthStore();
-const router = useRouter();
-
-useEffect(() => {
-  if (!hydrated) return; // wait until SecureStore is read
-  if (!accessToken || !user || user.role !== "warga") {
-    router.replace("/(auth)/login");
-  }
-}, [hydrated, accessToken, user]);
-
-function TabIcon({
-  name,
-  color,
-  focused,
-}: {
-  name: any;
-  color: string;
-  focused: boolean;
-}) {
+function HistoryIcon({ color, focused }: { color: string; focused: boolean }) {
   return (
     <Ionicons
-      name={focused ? name : (`${name}-outline` as any)}
+      name={focused ? 'list' : 'list-outline'}
       size={22}
       color={color}
     />
   );
 }
 
-function NotifTabIcon({ color, focused }: { color: string; focused: boolean }) {
-  const { data } = useNotifications();
-  const unread = data?.unread ?? 0;
-
-  console.log('[DEBUG] rendering root layout');
-  console.log('[DEBUG] notifications data:', JSON.stringify(data));
-  
+function SubmitTabIcon({ focused }: { focused: boolean }) {
   return (
-    <View>
-      <Ionicons
-        name={focused ? "notifications" : "notifications-outline"}
-        size={22}
-        color={color}
-      />
-      {unread > 0 && (
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>{unread > 9 ? "9+" : unread}</Text>
-        </View>
-      )}
+    <View style={[
+      submitStyles.pill,
+      focused && submitStyles.pillActive,
+    ]}>
+      <Ionicons name="add" size={26} color="#fff" />
     </View>
   );
 }
 
+const submitStyles = StyleSheet.create({
+  pill: {
+    width: 52,
+    height: 52,
+    borderRadius: 18,
+    backgroundColor: '#73AF6F',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Platform.OS === 'ios' ? 10 : 6,
+    shadowColor: '#73AF6F',
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 5,
+  },
+  pillActive: {
+    backgroundColor: '#5a9456',
+  },
+});
+
 export default function TabsLayout() {
-  const { t } = useLangStore();
+  const { user, accessToken, hydrated } = useAuthStore();
+  const { t }   = useLangStore();
+  const router  = useRouter();
+  const insets  = useSafeAreaInsets();
+
+  // Auth guard — only fire after hydration
+  useEffect(() => {
+    if (!hydrated) return;
+    if (!accessToken || !user || user.role !== 'warga') {
+      router.replace('/(auth)/login');
+    }
+  }, [hydrated, accessToken, user]);
+
+  if (!hydrated || !accessToken || !user) return null;
+
+  // Safe bottom padding: respect system navigation bar
+  const tabBarHeight = 60 + insets.bottom;
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#73AF6F",
-        tabBarInactiveTintColor: "#9CA3AF",
+        tabBarActiveTintColor:   '#73AF6F',
+        tabBarInactiveTintColor: '#9CA3AF',
         tabBarStyle: {
-          backgroundColor: "#fff",
-          borderTopColor: "#E4EDE3",
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 4,
+          backgroundColor:  '#ffffff',
+          borderTopColor:   '#E4EDE3',
+          borderTopWidth:   1,
+          height:           tabBarHeight,
+          paddingBottom:    insets.bottom + 4,
+          paddingTop:       8,
+          // Ensure it sits above Android gesture bar
+          elevation: 8,
         },
         tabBarLabelStyle: {
-          fontSize: 10,
-          fontWeight: "600",
+          fontSize:   10,
+          fontWeight: '600',
+          marginTop:  2,
         },
       }}
     >
+      {/* Tab order: Home — History — Submit — Wallet — Profile */}
+
       <Tabs.Screen
         name="index"
         options={{
-          title: t("nav.home"),
+          title: t('nav.home'),
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon name="home" color={color} focused={focused} />
+            <Ionicons
+              name={focused ? 'home' : 'home-outline'}
+              size={22}
+              color={color}
+            />
           ),
         }}
       />
+
+      <Tabs.Screen
+        name="history"
+        options={{
+          title: t('nav.history'),
+          tabBarIcon: ({ color, focused }) => (
+            <HistoryIcon color={color} focused={focused} />
+          ),
+        }}
+      />
+
       <Tabs.Screen
         name="submit"
         options={{
-          title: t("nav.submit"),
-          tabBarIcon: ({ color, focused }) => (
-            <View style={focused ? styles.submitActive : styles.submitInactive}>
-              <Ionicons
-                name="add"
-                size={26}
-                color={focused ? "#fff" : "#9CA3AF"}
-              />
-            </View>
+          title: '',
+          tabBarIcon: ({ focused }) => (
+            <SubmitTabIcon focused={focused} />
           ),
           tabBarLabel: () => (
-            <Text style={{ fontSize: 10, fontWeight: "600", color: "#73AF6F" }}>
-              {t("nav.submit")}
+            <Text style={{ fontSize: 10, fontWeight: '700', color: '#73AF6F', marginTop: -2 }}>
+              {t('nav.submit')}
             </Text>
           ),
         }}
       />
-      <Tabs.Screen
-        name="history"
-        options={{
-          title: t("nav.history"),
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon name="list" color={color} focused={focused} />
-          ),
-        }}
-      />
+
       <Tabs.Screen
         name="wallet"
         options={{
-          title: t("nav.wallet"),
+          title: t('nav.wallet'),
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon name="wallet" color={color} focused={focused} />
+            <Ionicons
+              name={focused ? 'wallet' : 'wallet-outline'}
+              size={22}
+              color={color}
+            />
           ),
         }}
       />
+
       <Tabs.Screen
         name="profile"
         options={{
-          title: t("nav.profile"),
+          title: t('nav.profile'),
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon name="person" color={color} focused={focused} />
+            <Ionicons
+              name={focused ? 'person' : 'person-outline'}
+              size={22}
+              color={color}
+            />
           ),
         }}
       />
     </Tabs>
   );
 }
-
-const styles = StyleSheet.create({
-  badge: {
-    position: "absolute",
-    top: -4,
-    right: -8,
-    backgroundColor: "#73AF6F",
-    borderRadius: 8,
-    minWidth: 16,
-    height: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 3,
-  },
-  badgeText: { color: "#fff", fontSize: 9, fontWeight: "700" },
-  submitActive: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    backgroundColor: "#73AF6F",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 4,
-    shadowColor: "#73AF6F",
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  submitInactive: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    backgroundColor: "#F0F7EF",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 4,
-  },
-});

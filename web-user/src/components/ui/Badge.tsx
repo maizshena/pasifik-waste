@@ -1,4 +1,3 @@
-// src/components/ui/Badge.tsx
 'use client';
 
 type BadgeStatus = 'pending' | 'approved' | 'rejected' | 'success' | string;

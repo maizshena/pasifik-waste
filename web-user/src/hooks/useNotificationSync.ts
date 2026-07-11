@@ -1,4 +1,3 @@
-// src/components/NotificationSync.tsx
 'use client';
 
 import { useEffect, useRef } from 'react';
@@ -33,5 +32,5 @@ export function NotificationSync() {
     });
   }, [data, qc]);
 
-  return null; // renders nothing — side-effect only
+  return null; // renders nothing, side-effect only
 }

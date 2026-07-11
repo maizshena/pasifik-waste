@@ -1,4 +1,3 @@
-// src/lib/axios.ts
 import axios from 'axios';
 import { authEvents } from './authEvents';
 

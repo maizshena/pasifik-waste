@@ -30,14 +30,12 @@ export function useMyReports(params: ListParams = {}) {
     queryKey: ['my-reports', params],
     queryFn:  async () => {
       const cleanParams: Record<string, any> = { page: params.page, limit: params.limit };
-      // Only pass status if it has a real value
       if (params.status) cleanParams.status = params.status;
       return (await api.get('/api/reports/my', { params: cleanParams })).data;
     },
   });
 }
 
-// Warga: single report detail
 export function useReport(id: number) {
   return useQuery({
     queryKey: ['report', id],
@@ -47,7 +45,6 @@ export function useReport(id: number) {
   });
 }
 
-// Warga: submit new report (multipart)
 export function useSubmitReport() {
   const qc = useQueryClient();
   return useMutation({

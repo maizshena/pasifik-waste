@@ -250,13 +250,13 @@ export default function SubmitPage() {
 
   const selectedCat = categories.find((c) => String(c.id) === form.category_id);
 
-  // Helper: error message below field
+  // error message below field
   const FieldError = ({ field }: { field: string }) =>
     errors[field] ? (
       <p className="text-xs text-red-500 mt-1">{errors[field]}</p>
     ) : null;
 
-  // Helper: required asterisk
+  // required asterisk
   const Req = () => <span className="text-red-400 ml-0.5">*</span>;
 
   return (
@@ -280,7 +280,6 @@ export default function SubmitPage() {
       </div>
 
       <div className="px-4 space-y-4 mt-2">
-        {/* Category — required */}
         <div
           className={`card p-4 ${errors.category_id ? "border-red-200" : ""}`}
         >
@@ -321,7 +320,6 @@ export default function SubmitPage() {
           )}
         </div>
 
-        {/* Weight — required */}
         <div
           className={`card p-4 ${errors.estimated_weight ? "border-red-200" : ""}`}
         >
@@ -347,7 +345,6 @@ export default function SubmitPage() {
           </div>
           <FieldError field="estimated_weight" />
 
-          {/* Point preview */}
           {selectedCat &&
             form.estimated_weight &&
             parseFloat(form.estimated_weight) > 0 && (

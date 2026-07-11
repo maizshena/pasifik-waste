@@ -1,4 +1,3 @@
-// src/app/(auth)/login/page.tsx
 'use client';
 
 import { useState }     from 'react';
@@ -27,7 +26,6 @@ export default function LoginPage() {
       const { data } = await api.post('/api/auth/login', form);
       const { user, accessToken, refreshToken } = data.data;
 
-      // Block admins from warga portal
       if (user.role !== 'warga') {
         setErr('This portal is for residents only. Please use the Admin Dashboard.');
         return;
@@ -44,7 +42,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-brand-50 to-surface flex flex-col items-center justify-center p-6">
-      {/* Hero */}
       <div className="text-center mb-10 animate-slide-up">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand shadow-float mb-4">
           <Leaf size={28} className="text-white" />
@@ -55,7 +52,6 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {/* Card */}
       <div className="w-full max-w-sm bg-white rounded-3xl shadow-modal p-7 animate-slide-up">
         <h2 className="font-display font-semibold text-xl text-ink mb-6">
           Welcome back!
@@ -126,7 +122,7 @@ export default function LoginPage() {
       </div>
 
       <p className="text-xs text-ink-faint mt-8">
-        Pasifik © 2025 — For residents of the region
+        Pasifik © 2026 For residents of the region
       </p>
     </div>
   );

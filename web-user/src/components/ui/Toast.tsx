@@ -1,4 +1,3 @@
-// src/components/ui/Toast.tsx
 'use client';
 
 import { useEffect, useState } from 'react';

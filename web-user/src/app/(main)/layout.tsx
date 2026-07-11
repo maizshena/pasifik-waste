@@ -1,4 +1,3 @@
-// src/app/(main)/layout.tsx
 'use client';
 
 import { useEffect }         from 'react';
@@ -52,7 +51,6 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         <Toast key={t.id} message={t.message} type={t.type} onClose={() => remove(t.id)} />
       ))}
 
-      {/* Notification sync — must be inside QueryClientProvider, which wraps this layout */}
       <NotificationSync />
 
       <main className="max-w-lg mx-auto pb-nav">

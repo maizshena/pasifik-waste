@@ -19,7 +19,6 @@ export function Map({ lat, lng, onChange }: Props) {
     onChangeRef.current = onChange;
   }, [onChange]);
 
-  // 1. Load Leaflet CSS secara dinamis
   useEffect(() => {
     if (document.querySelector('link[data-leaflet]')) return;
     const link       = document.createElement('link');
@@ -29,14 +28,12 @@ export function Map({ lat, lng, onChange }: Props) {
     document.head.appendChild(link);
   }, []);
 
-  // 2. Inisialisasi Peta
   useEffect(() => {
     if (!mapRef.current || instanceRef.current || isInitializingRef.current) return;
 
     isInitializingRef.current = true;
 
     import('leaflet').then((L) => {
-      // Pastikan elemen wadah peta masih ada saat library selesai di-load
       if (!mapRef.current) return;
 
       delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -60,7 +57,6 @@ export function Map({ lat, lng, onChange }: Props) {
         attribution: '© OpenStreetMap',
       }).addTo(map);
 
-      // Jika koordinat awal sudah ada dari props
       if (lat !== null && lng !== null) {
         const marker = L.marker([lat, lng], { draggable: true }).addTo(map);
         marker.on('dragend', (e: any) => {
@@ -70,7 +66,6 @@ export function Map({ lat, lng, onChange }: Props) {
         markerRef.current = marker;
       }
 
-      // Event klik peta untuk memindahkan / membuat marker baru
       map.on('click', (e: any) => {
         const { lat: clickLat, lng: clickLng } = e.latlng;
 
@@ -95,7 +90,6 @@ export function Map({ lat, lng, onChange }: Props) {
       isInitializingRef.current = false;
     });
 
-    // Cleanup yang aman dari tumpang tindih async
     return () => {
       if (instanceRef.current) {
         instanceRef.current.remove();
@@ -105,7 +99,6 @@ export function Map({ lat, lng, onChange }: Props) {
     };
   }, []);
 
-  // 3. Sinkronisasi perubahan koordinat dari luar (misal tombol "Gunakan Lokasi Saat Ini")
   useEffect(() => {
     if (!instanceRef.current || lat === null || lng === null) return;
 
@@ -120,7 +113,7 @@ export function Map({ lat, lng, onChange }: Props) {
       markerRef.current.setLatLng([lat, lng]);
     } else {
       import('leaflet').then((L) => {
-        if (!instanceRef.current) return; // Guard jika map diclose saat load
+        if (!instanceRef.current) return;
         const newMarker = L.marker([lat, lng], { draggable: true }).addTo(instanceRef.current);
         newMarker.on('dragend', (e: any) => {
           const pos = e.target.getLatLng();

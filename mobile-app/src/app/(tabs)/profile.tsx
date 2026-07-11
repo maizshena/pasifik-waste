@@ -45,7 +45,7 @@ export default function ProfileScreen() {
 
   const { data: profile } = useQuery({
     queryKey: ["profile"],
-    queryFn: async () => (await api.get("/api/auth/profile")).data.data,
+    queryFn: async () => (await api.get("/api/auth/me")).data.data,
   });
 
   useEffect(() => {

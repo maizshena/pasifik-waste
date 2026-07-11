@@ -1,4 +1,3 @@
-// src/hooks/useToast.ts
 'use client';
 import { useState, useCallback } from 'react';
 import type { ToastType } from '@/components/ui/Toast';

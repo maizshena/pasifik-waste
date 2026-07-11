@@ -19,7 +19,6 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Toast } from "@/components/ui/Toast";
 import { useToast } from "@/hooks/useToast";
-import { relativeTime } from "@/lib/relativeTime";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -53,7 +52,6 @@ export default function ReportDetailPage() {
     }
   }
 
-  // Safe photo resolution
   const photos: string[] = (() => {
     if (report?.photo_urls) {
       try {
@@ -106,7 +104,6 @@ export default function ReportDetailPage() {
         />
       ))}
 
-      {/* Header */}
       <div className="px-4 pt-4 pb-2 flex items-center gap-3">
         <button
           onClick={() => router.back()}
@@ -126,13 +123,11 @@ export default function ReportDetailPage() {
       <div className="px-4 space-y-4">
         {photos.length > 0 && (
           <div className="card overflow-hidden">
-            {/* Main photo */}
             <img
               src={toAbsolute(photos[currentPhoto ?? 0])}
               alt="Report"
               className="w-full h-48 object-cover"
             />
-            {/* All thumbnails when more than 1 */}
             {photos.length > 1 && (
               <div className="flex gap-1.5 p-2 overflow-x-auto">
                 {photos.map((p, i) => (
@@ -198,7 +193,6 @@ export default function ReportDetailPage() {
                       const h12 = h % 12 === 0 ? 12 : h % 12;
                       return `${h12}:${String(m).padStart(2, "0")} ${period}`;
                     }
-                    // Legacy integer fallback
                     const h = parseInt(val, 10);
                     return `${String(h).padStart(2, "0")}:00 ${h < 12 ? "AM" : "PM"}`;
                   })()}
@@ -222,7 +216,6 @@ export default function ReportDetailPage() {
           )}
         </div>
 
-        {/* Points breakdown */}
         {report.status === "approved" && report.net_points != null && (
           <div className="card p-4 bg-brand-50 border-brand-100">
             <p className="text-xs font-semibold text-brand-600 uppercase tracking-wide mb-3">
@@ -251,7 +244,6 @@ export default function ReportDetailPage() {
           </div>
         )}
 
-        {/* Rejection reason */}
         {report.status === "rejected" && (
           <div className="card p-4 bg-red-50 border-red-100">
             <p className="text-xs font-semibold text-red-500 uppercase tracking-wide mb-1">
@@ -263,7 +255,6 @@ export default function ReportDetailPage() {
           </div>
         )}
 
-        {/* Location */}
         {(report.latitude || report.address_text) && (
           <div className="card p-4 flex items-start gap-3">
             <MapPin size={16} className="text-brand flex-shrink-0 mt-0.5" />
@@ -280,7 +271,6 @@ export default function ReportDetailPage() {
           </div>
         )}
 
-        {/* Notes — FileText icon (different from comment icon) */}
         {report.notes && (
           <div className="card p-4 flex items-start gap-3">
             <FileText
@@ -296,9 +286,7 @@ export default function ReportDetailPage() {
           </div>
         )}
 
-        {/* Comments — MessageCircle icon (distinct from FileText notes) */}
         <div className="card overflow-hidden">
-          {/* Header */}
           <div className="px-4 py-3 border-b border-surface-border flex items-center gap-2">
             <MessageCircle size={15} className="text-brand" />
             <h3 className="font-semibold text-ink text-sm">
@@ -309,8 +297,6 @@ export default function ReportDetailPage() {
               {(comments as any[]).length !== 1 ? "s" : ""}
             </span>
           </div>
-
-          {/* Comment list */}
           <div className="px-4 py-3 space-y-3 max-h-64 overflow-y-auto">
             {commentsLoading && (
               <div className="space-y-2">
@@ -341,7 +327,6 @@ export default function ReportDetailPage() {
                     key={c.id}
                     className={`flex items-end gap-2 ${isMe ? "flex-row-reverse" : "flex-row"}`}
                   >
-                    {/* Avatar */}
                     <div
                       className={`
                     w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] font-bold
@@ -357,7 +342,6 @@ export default function ReportDetailPage() {
                         : (c.author_name?.[0]?.toUpperCase() ?? "W")}
                     </div>
 
-                    {/* Bubble */}
                     <div
                       className={`
                     max-w-[75%] px-3 py-2 rounded-2xl text-sm
@@ -390,7 +374,6 @@ export default function ReportDetailPage() {
               })}
           </div>
 
-          {/* Input */}
           <div className="px-4 pb-4 border-t border-surface-border pt-3">
             <div className="flex gap-2 items-end">
               <textarea

@@ -4,7 +4,6 @@ import { useState }           from 'react';
 import {
   Wallet, Lock, ArrowDownCircle,
   Building2, CreditCard, Hash,
-  CheckCircle2, Clock, XCircle,
   TrendingUp,
 } from 'lucide-react';
 import { Button }             from '@/components/ui/Button';
@@ -60,7 +59,6 @@ export default function WalletPage() {
         account_holder: form.account_holder,
       });
 
-      // ✓ Reset form and close panel on success
       setForm(EMPTY_FORM);
       setShowForm(false);
       showToast(t('wallet.submitted'), 'success');
@@ -86,9 +84,7 @@ export default function WalletPage() {
         </h1>
       </div>
 
-      {/* ── Balance cards ─────────────────────────────────────────────── */}
       <div className="px-4 mt-2 space-y-3">
-        {/* Main balance */}
         <div className="card p-5 bg-gradient-to-br from-brand-500 to-brand-400 border-0">
           <div className="flex items-center gap-2 mb-2">
             <Wallet size={16} className="text-white/70" />
@@ -106,7 +102,6 @@ export default function WalletPage() {
           )}
         </div>
 
-        {/* Locked balance */}
         {locked > 0 && (
           <div className="card p-4 bg-amber-50 border-amber-100">
             <div className="flex items-center gap-2">
@@ -121,7 +116,6 @@ export default function WalletPage() {
           </div>
         )}
 
-        {/* ── Zero balance empty state ───────────────────────────────── */}
         {!meLoading && balance === 0 && (
           <div className="card p-6 text-center border-dashed">
             <TrendingUp size={28} className="text-brand-200 mx-auto mb-3" />
@@ -142,7 +136,6 @@ export default function WalletPage() {
           </div>
         )}
 
-        {/* ── Withdraw button / form ─────────────────────────────────── */}
         {balance > 0 && (
           <>
             {!showForm ? (
@@ -169,7 +162,6 @@ export default function WalletPage() {
                   </button>
                 </div>
 
-                {/* Amount */}
                 <div>
                   <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wide mb-1.5">
                     {t('wallet.amount')}
@@ -244,7 +236,6 @@ export default function WalletPage() {
         )}
       </div>
 
-      {/* ── Withdrawal history ─────────────────────────────────────────── */}
       <div className="px-4 mt-6">
         <p className="text-xs font-semibold text-ink-muted uppercase tracking-widest mb-3">
           {t('wallet.myWithdrawals')}
